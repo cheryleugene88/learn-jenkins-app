@@ -21,9 +21,23 @@ pipeline {
             }
         }
         stage('Test') {
-            steps {
-                echo 'Test Stage'
+            agent {
+                docker {
+                    image 'node:18-alpine' // still need same node.js version
+                    reuseNode true
+                }
             }
+            steps {
+                sh '''
+                    test f - build/index.html
+                    npm test
+                '''
+            }
+        }
+    }
+    post {
+        always {
+            junit 'test-results/junit.xml'
         }
     }
 }
